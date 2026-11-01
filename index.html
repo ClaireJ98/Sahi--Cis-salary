@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>S 独联体日结薪资</title>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <style>
+:root {
+  --bg: #f4f6fb;
+  --panel: #ffffff;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --primary: #2563eb;
+  --primary-soft: #dbeafe;
+  --success: #059669;
+  --success-soft: #d1fae5;
+  --danger: #dc2626;
+  --danger-soft: #fee2e2;
+  --border: #e5e7eb;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 24px;
+  background: #111827;
+  color: #fff;
+}
+.topbar a { color: #dbeafe; margin-left: 16px; text-decoration: none; cursor: pointer; }
+.container { max-width: 1100px; margin: 24px auto; padding: 0 16px 40px; }
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.04);
+}
+h1 { margin: 0 0 8px; font-size: 1.5rem; }
+h2 { margin: 0 0 12px; font-size: 1.1rem; }
+.subtitle { color: var(--muted); margin: 0 0 16px; }
+.actions { margin-top: 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.btn {
+  display: inline-block; padding: 10px 18px; border-radius: 8px; border: none;
+  text-decoration: none; cursor: pointer; font-size: .95rem;
+}
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-secondary { background: #fff; color: var(--primary); border: 1px solid var(--primary); }
+.btn:disabled { opacity: .55; cursor: not-allowed; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+th, td { border-bottom: 1px solid var(--border); padding: 10px 8px; text-align: left; }
+th { background: #f9fafb; }
+.form-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;
+}
+.form-grid label { display: flex; flex-direction: column; gap: 4px; font-size: .9rem; }
+.form-grid input[type="text"] {
+  padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: .95rem;
+}
+.alert { padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; }
+.alert-error { background: var(--danger-soft); color: var(--danger); }
+.alert-success { background: var(--success-soft); color: var(--success); }
+.back { color: var(--primary); text-decoration: none; display: inline-block; margin-bottom: 8px; cursor: pointer; }
+.file-dropzone {
+  position: relative;
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+  margin-top: 6px;
+  width: 100%;
+}
+.file-dropzone:hover { border-color: #94a3b8; background: #f8fafc; }
+.file-dropzone.is-dragover {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
+.file-dropzone-input {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.file-dropzone-inner { padding: 18px 14px; text-align: center; }
+.file-dropzone-hint { margin: 0; color: var(--muted); font-size: .9rem; line-height: 1.5; }
+.file-dropzone-name {
+  margin: 8px 0 0;
+  font-size: .85rem;
+  color: var(--primary);
+  font-weight: 600;
+  word-break: break-all;
+}
+.file-dropzone-name.is-error { color: var(--danger); font-weight: 500; }
+.tips-box {
+  margin-top: 16px; padding: 12px 14px; background: #fffbeb;
+  border: 1px solid #fde68a; border-radius: 8px; font-size: .9rem; line-height: 1.7;
+}
+.cis-app {
+  --primary: #1d4ed8;
+  --primary-soft: #dbeafe;
+  --bg: #f8fafc;
+}
+.cis-topbar { background: #1e3a8a; }
+.cis-app .btn-primary { background: #1d4ed8; }
+.cis-app .btn-secondary { color: #1d4ed8; border-color: #1d4ed8; }
+.cis-hero-brand {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.18em;
+  padding: 28px 16px 8px;
+  background: linear-gradient(180deg, #eff6ff 0%, #f8fafc 100%);
+  border-bottom: 1px solid #dbeafe;
+  user-select: none;
+}
+.cis-hero-s {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(5.5rem, 18vw, 9rem);
+  font-weight: 700;
+  line-height: 0.85;
+  letter-spacing: -0.04em;
+  color: #1d4ed8;
+}
+.cis-hero-name {
+  font-size: clamp(2rem, 6vw, 3.25rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  color: #0f172a;
+}
+.cis-download-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  margin: 16px 0;
+}
+.cis-download-grid .btn {
+  text-align: center;
+  padding: 14px 16px;
+  font-size: 1rem;
+}
+.cis-stat {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 12px 0 0;
+  color: #475569;
+  font-size: .95rem;
+}
+.cis-stat strong { color: #0f172a; }
+.hidden { display: none !important; }
+.brand { font-weight: 600; }
+  </style>
+</head>
+<body class="cis-app">
+  <header class="topbar cis-topbar">
+    <div class="brand">日结薪资发放</div>
+    <nav>
+      <a id="nav-home" href="#home">上传计算</a>
+    </nav>
+  </header>
+  <div class="cis-hero-brand" aria-label="S 独联体">
+    <span class="cis-hero-s">S</span>
+    <span class="cis-hero-name">独联体</span>
+  </div>
+
+  <main class="container">
+    <!-- 上传页 -->
+    <div id="view-home">
+      <section class="panel">
+        <h1>独联体日结薪资</h1>
+        <p class="subtitle">上传今日主播工作数据 + 房间流水表，自动生成可直接上传发放后台的表格。</p>
+        <div id="home-error" class="alert alert-error hidden"></div>
+
+        <form id="calc-form" class="calc-form">
+          <div class="form-grid">
+            <label>文件名前缀（可空，默认用工作表日期）
+              <input id="week-label" name="week_label" type="text" placeholder="如 20261031，留空自动识别">
+            </label>
+            <label>① 主播工作数据 Excel（必填）
+              <input id="file-work" type="file" name="file" accept=".xlsx,.xlsm,.csv" required>
+            </label>
+            <label>② 房间流水表 CSV / Excel（必填）
+              <input id="file-room" type="file" name="room_file" accept=".xlsx,.xlsm,.csv" required>
+            </label>
+          </div>
+          <div class="actions">
+            <button class="btn btn-primary" type="submit" id="btn-submit">上传并计算</button>
+            <button class="btn btn-secondary" type="button" id="btn-room-template">下载房间表模板</button>
+          </div>
+        </form>
+
+        <div class="tips-box">
+          <strong>计算说明：</strong><br>
+          · 主播：U 列「今日红钻流水(分)」÷100 × 3.5<br>
+          · 公会长：名下主播今日流水合计 × 0.7（四舍五入）<br>
+          · 房主：房间流水 × 25%<br>
+          · 操作描述：主播 Ежедневная зарплата ведущего / 会长 Бонус агентства / 房间 Бонус комнаты
+        </div>
+      </section>
+
+      <section class="panel" id="recent-panel">
+        <h2>最近计算</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>周期</th>
+                <th>主播数</th>
+                <th>计算时间</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="recent-body">
+              <tr><td colspan="4" style="color:var(--muted)">暂无记录（本机浏览器内保存）</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- 结果页 -->
+    <div id="view-result" class="hidden">
+      <a class="back" id="btn-back">← 返回上传</a>
+      <section class="panel">
+        <h1 id="result-title">独联体日结</h1>
+        <p class="subtitle">计算完成。请下载下方表格，直接上传发放后台。</p>
+        <div id="result-error" class="alert alert-error hidden"></div>
+        <div class="cis-stat" id="result-stats"></div>
+        <div class="cis-download-grid">
+          <button class="btn btn-primary" type="button" data-export="streamer">下载主播薪资</button>
+          <button class="btn btn-primary" type="button" data-export="leader">下载公会长薪资</button>
+          <button class="btn btn-primary" type="button" data-export="room">下载房主 bonus</button>
+          <button class="btn btn-secondary" type="button" data-export="all">打包下载全部 ZIP</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2 id="preview-streamer-title">主播下发预览</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>UID</th><th>数量</th><th>操作描述</th></tr></thead>
+            <tbody id="preview-streamer"></tbody>
+          </table>
+        </div>
+      </section>
+      <section class="panel">
+        <h2 id="preview-leader-title">公会长下发预览</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>UID</th><th>数量</th><th>操作描述</th></tr></thead>
+            <tbody id="preview-leader"></tbody>
+          </table>
+        </div>
+      </section>
+      <section class="panel">
+        <h2 id="preview-room-title">房主 bonus 预览</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>UID</th><th>数量</th><th>操作描述</th></tr></thead>
+            <tbody id="preview-room"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+<script>
+(function () {
+  "use strict";
+
+  const STREAMER_RATE = 3.5;
+  const LEADER_RATE = 0.7;
+  const ROOM_RATE = 0.25;
+  const DESC_STREAMER = "Ежедневная зарплата ведущего";
+  const DESC_LEADER = "Бонус агентства";
+  const DESC_ROOM = "Бонус комнаты";
+  const HEADERS = ["UID (必填)", "数量 (必填,大于0的正整数)", "操作描述 (选填)"];
+  const STORAGE_KEY = "cis_payroll_batches_v1";
+  const PREVIEW_LIMIT = 50;
+
+  const WORK_ALIASES = {
+    "主播showid": "streamer_show_id",
+    "主播 showid": "streamer_show_id",
+    "主播uid": "streamer_uid",
+    "主播 uid": "streamer_uid",
+    "主播UId": "streamer_uid",
+    "公会id": "guild_id",
+    "公会 id": "guild_id",
+    "工会长showid": "leader_show_id",
+    "工会长 showid": "leader_show_id",
+    "工会长uid": "leader_uid",
+    "工会长 uid": "leader_uid",
+    "今日红钻流水(分)": "today_revenue_fen",
+    "昨日红钻流水(分)": "yesterday_revenue_fen",
+    "红钻流水(分)": "revenue_fen",
+    "红钻流水": "revenue",
+    "时间(utc+8)": "work_time",
+    "时间": "work_time",
+    "主播名称": "streamer_nickname",
+    "主播昵称": "streamer_nickname",
+    "所属大区": "region_label",
+  };
+  const ROOM_ALIASES = {
+    "room_info.owner_id": "owner_uid",
+    "owner_id": "owner_uid",
+    "房主uid": "owner_uid",
+    "房主 uid": "owner_uid",
+    "房间内礼物红钻收入": "room_revenue",
+    "房间流水": "room_revenue",
+    "房间红钻流水": "room_revenue",
+    "礼物红钻收入": "room_revenue",
+  };
+  const BLOCKLIST = new Set(["红钻收入(余额)", "红钻收入（余额）", "待转结红钻", "待转结金币"]);
+  const SKIP_SHEETS = new Set(["政策", "转会待发放金币"]);
+
+  let currentBatch = null;
+
+  /* ---------- math (match Python Decimal ROUND_DOWN / ROUND_HALF_UP) ---------- */
+  function rateToFraction(rate) {
+    const s = String(rate);
+    const [a, b = ""] = s.split(".");
+    const denom = Math.pow(10, b.length);
+    const numer = Number(a) * denom + Number(b || 0);
+    return { numer, denom };
+  }
+  function rateTrunc(revenue, rate) {
+    revenue = Math.trunc(Number(revenue) || 0);
+    if (revenue <= 0 || rate <= 0) return 0;
+    const { numer, denom } = rateToFraction(rate);
+    return Math.floor((revenue * numer) / denom);
+  }
+  function rateHalfUp(revenue, rate) {
+    revenue = Math.trunc(Number(revenue) || 0);
+    if (revenue <= 0 || rate <= 0) return 0;
+    const { numer, denom } = rateToFraction(rate);
+    return Math.floor((revenue * numer + Math.floor(denom / 2)) / denom);
+  }
+  function fenToDiamonds(fen) {
+    return Math.trunc(Number(fen) || 0) / 100 | 0;
+  }
+  function intcomma(v) {
+    const n = Math.trunc(Number(v) || 0);
+    return n.toLocaleString("en-US");
+  }
+
+  /* ---------- helpers ---------- */
+  function norm(value) {
+    return String(value || "")
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, "")
+      .replace(/（/g, "(")
+      .replace(/）/g, ")")
+      .replace(/　/g, "");
+  }
+  function aliasIndex(aliases) {
+    const out = {};
+    Object.keys(aliases).forEach((k) => { out[norm(k)] = aliases[k]; });
+    return out;
+  }
+  function cellStr(value) {
+    if (value == null || value === "") return "";
+    if (typeof value === "number" && Number.isFinite(value) && Math.floor(value) === value) {
+      return String(Math.trunc(value));
+    }
+    let text = String(value).trim();
+    if (text.endsWith(".0") && /^\d+$/.test(text.slice(0, -2))) text = text.slice(0, -2);
+    return text;
+  }
+  function cellInt(value) {
+    if (value == null || value === "" || value === "-") return 0;
+    if (typeof value === "number" && Number.isFinite(value)) return Math.trunc(value);
+    const text = String(value).trim().replace(/,/g, "").replace(/，/g, "");
+    if (!text || text === "-") return 0;
+    return Math.trunc(Number(text));
+  }
+  function mapHeaders(headers, aliases) {
+    const index = aliasIndex(aliases);
+    const block = new Set([...BLOCKLIST].map(norm));
+    const keys = Object.keys(index).sort((a, b) => b.length - a.length);
+    const mapping = {};
+    headers.forEach((h, i) => {
+      const key = norm(h);
+      if (!key || block.has(key)) return;
+      let field = index[key];
+      if (!field) {
+        for (const alias of keys) {
+          if (key === alias || key.startsWith(alias)) {
+            const candidate = index[alias];
+            if (
+              key.includes("(分)") &&
+              ["revenue", "today_revenue", "yesterday_revenue"].includes(candidate)
+            ) {
+              continue;
+            }
+            field = candidate;
+            break;
+          }
+        }
+      }
+      if (field) mapping[i] = field;
+    });
+    return mapping;
+  }
+  function looksLikeCsv(name, bytes) {
+    if (String(name || "").toLowerCase().endsWith(".csv")) return true;
+    if (bytes && bytes.byteLength >= 2) {
+      const u8 = new Uint8Array(bytes);
+      return !(u8[0] === 0x50 && u8[1] === 0x4b); // not PK zip/xlsx
+    }
+    return false;
+  }
+  function sheetToRows(ws) {
+    return XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: null });
+  }
+  function decodeCsv(bytes) {
+    let text = new TextDecoder("utf-8").decode(bytes);
+    if (text.charCodeAt(0) === 0xfeff) text = text.slice(1);
+    const wb = XLSX.read(text, { type: "string" });
+    return sheetToRows(wb.Sheets[wb.SheetNames[0]]);
+  }
+
+  /* ---------- parse work / room ---------- */
+  function parseWorkFile(bytes, filename) {
+    if (looksLikeCsv(filename, bytes)) {
+      return { rows: [], errors: ["主播工作数据请上传 Excel（.xlsx）。房间流水 CSV 请放到第二个上传框。"] };
+    }
+    let wb;
+    try {
+      wb = XLSX.read(bytes, { type: "array", cellDates: true });
+    } catch (e) {
+      return { rows: [], errors: ["无法读取工作数据 Excel：" + e.message] };
+    }
+    let headers = [];
+    let dataRows = [];
+    let colmap = {};
+    let found = false;
+    for (const name of wb.SheetNames) {
+      if (SKIP_SHEETS.has(name)) continue;
+      const rows = sheetToRows(wb.Sheets[name] || {});
+      headers = rows[0] || [];
+      colmap = mapHeaders(headers, WORK_ALIASES);
+      const fields = new Set(Object.values(colmap));
+      if (
+        fields.has("streamer_uid") &&
+        (fields.has("today_revenue_fen") ||
+          fields.has("yesterday_revenue_fen") ||
+          fields.has("revenue_fen") ||
+          fields.has("revenue") ||
+          fields.has("today_revenue"))
+      ) {
+        dataRows = rows.slice(1);
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      const rows = sheetToRows(wb.Sheets[wb.SheetNames[0]] || {});
+      headers = rows[0] || [];
+      colmap = mapHeaders(headers, WORK_ALIASES);
+      dataRows = rows.slice(1);
+    }
+    const fields = new Set(Object.values(colmap));
+    if (!fields.has("streamer_uid")) return { rows: [], errors: ["缺少必填列：主播 uid"] };
+    if (
+      !fields.has("today_revenue_fen") &&
+      !fields.has("yesterday_revenue_fen") &&
+      !fields.has("revenue_fen") &&
+      !fields.has("revenue") &&
+      !fields.has("today_revenue")
+    ) {
+      return { rows: [], errors: ["缺少流水列：请确认有「今日红钻流水(分)」"] };
+    }
+
+    const intFields = new Set([
+      "today_revenue_fen", "yesterday_revenue_fen", "revenue_fen",
+      "today_revenue", "yesterday_revenue", "revenue",
+    ]);
+    const out = [];
+    const errors = [];
+    dataRows.forEach((raw, idx) => {
+      if (!raw || raw.every((c) => c == null || String(c).trim() === "")) return;
+      const item = {};
+      Object.keys(colmap).forEach((ci) => {
+        const field = colmap[ci];
+        const val = raw[ci];
+        item[field] = intFields.has(field) ? cellInt(val) : cellStr(val);
+      });
+      if (!item.streamer_uid) {
+        errors.push("第 " + (idx + 2) + " 行：主播 uid 为空，已跳过");
+        return;
+      }
+      if ("today_revenue_fen" in item) item.today_revenue = fenToDiamonds(item.today_revenue_fen || 0);
+      if ("yesterday_revenue_fen" in item) item.yesterday_revenue = fenToDiamonds(item.yesterday_revenue_fen || 0);
+      if ("revenue_fen" in item && item.today_revenue == null) {
+        item.today_revenue = fenToDiamonds(item.revenue_fen || 0);
+      }
+      out.push(item);
+    });
+    return { rows: out, errors };
+  }
+
+  function parseRoomFile(bytes, filename, rate) {
+    rate = rate == null ? ROOM_RATE : rate;
+    let rowsIter;
+    try {
+      if (looksLikeCsv(filename, bytes)) {
+        rowsIter = decodeCsv(bytes);
+      } else {
+        const wb = XLSX.read(bytes, { type: "array" });
+        rowsIter = sheetToRows(wb.Sheets[wb.SheetNames[0]] || {});
+      }
+    } catch (e) {
+      return { rows: [], errors: ["无法读取房间流水：" + e.message] };
+    }
+    if (!rowsIter.length) return { rows: [], errors: ["空表"] };
+    const headers = rowsIter[0] || [];
+    const dataRows = rowsIter.slice(1);
+    const colmap = mapHeaders(headers, ROOM_ALIASES);
+    const fields = new Set(Object.values(colmap));
+    if (!fields.has("owner_uid")) return { rows: [], errors: ["缺少必填列：房主 UID（room_info.owner_id）"] };
+    if (!fields.has("room_revenue")) return { rows: [], errors: ["缺少必填列：房间内礼物红钻收入"] };
+
+    const parsed = [];
+    const errors = [];
+    const seen = new Set();
+    dataRows.forEach((raw, idx) => {
+      if (!raw || raw.every((c) => c == null || String(c).trim() === "")) return;
+      const first = cellStr(raw[0]);
+      if (first.startsWith("阶段汇总")) return;
+      const item = {};
+      Object.keys(colmap).forEach((ci) => {
+        const field = colmap[ci];
+        const val = raw[ci];
+        item[field] = field === "room_revenue" ? cellInt(val) : cellStr(val);
+      });
+      const uid = String(item.owner_uid || "").trim();
+      if (!uid || uid === "0" || uid === "0.0" || uid === "-") {
+        errors.push("第 " + (idx + 2) + " 行：房主 UID 为空，已跳过");
+        return;
+      }
+      const key = uid + "|" + (item.room_revenue || 0);
+      if (seen.has(key)) return;
+      seen.add(key);
+      parsed.push([uid, item.room_revenue || 0]);
+    });
+
+    const totals = {};
+    parsed.forEach(([uid, rev]) => {
+      totals[uid] = (totals[uid] || 0) + rev;
+    });
+    const result = Object.keys(totals).map((uid) => ({
+      owner_uid: uid,
+      room_revenue: totals[uid],
+      room_bonus: rateTrunc(totals[uid], rate),
+    }));
+    result.sort((a, b) => b.room_bonus - a.room_bonus || (a.owner_uid < b.owner_uid ? -1 : 1));
+    return { rows: result, errors };
+  }
+
+  function pickTodayRevenue(row) {
+    if (row.today_revenue_fen != null) return fenToDiamonds(row.today_revenue_fen || 0);
+    if (row.today_revenue != null) return Math.trunc(row.today_revenue || 0);
+    if (row.revenue_fen != null) return fenToDiamonds(row.revenue_fen || 0);
+    return Math.trunc(row.revenue || 0);
+  }
+
+  function inferDayLabel(workRows) {
+    for (const row of workRows) {
+      const workTime = String(row.work_time || "").trim();
+      if (!workTime) continue;
+      const compact = workTime.replace(/[-/.\s:]/g, "");
+      if (/^\d{8}/.test(compact)) {
+        const y = Number(compact.slice(0, 4));
+        const m = Number(compact.slice(4, 6)) - 1;
+        const d = Number(compact.slice(6, 8));
+        const dt = new Date(y, m, d);
+        if (!isNaN(dt.getTime())) {
+          dt.setDate(dt.getDate() - 1);
+          const yy = dt.getFullYear();
+          const mm = String(dt.getMonth() + 1).padStart(2, "0");
+          const dd = String(dt.getDate()).padStart(2, "0");
+          return "" + yy + mm + dd;
+        }
+        return compact.slice(0, 8);
+      }
+    }
+    return "";
+  }
+
+  function calculateRecords(workRows) {
+    return workRows.map((row) => {
+      const revenue = pickTodayRevenue(row);
+      return {
+        streamer_uid: String(row.streamer_uid || ""),
+        streamer_nickname: String(row.streamer_nickname || ""),
+        guild_id: String(row.guild_id || ""),
+        leader_uid: String(row.leader_uid || ""),
+        revenue,
+        streamer_bonus: rateTrunc(revenue, STREAMER_RATE),
+        leader_bonus: rateTrunc(revenue, LEADER_RATE),
+      };
+    });
+  }
+
+  function aggregateStreamerPayouts(rows) {
+    const buckets = {};
+    rows.forEach((row) => {
+      const uid = String(row.streamer_uid || "").trim();
+      const amount = Math.trunc(row.streamer_bonus || 0);
+      if (!uid || amount <= 0) return;
+      buckets[uid] = (buckets[uid] || 0) + amount;
+    });
+    return Object.keys(buckets)
+      .map((uid) => ({ uid, diamonds: buckets[uid] }))
+      .sort((a, b) => b.diamonds - a.diamonds || (a.uid < b.uid ? -1 : 1));
+  }
+
+  function aggregateLeaderPayouts(rows) {
+    const byUid = {};
+    rows.forEach((row) => {
+      const uid = String(row.leader_uid || "").trim();
+      if (!uid) return;
+      byUid[uid] = (byUid[uid] || 0) + Math.trunc(row.revenue || 0);
+    });
+    return Object.keys(byUid)
+      .map((uid) => ({ uid, diamonds: rateHalfUp(byUid[uid], LEADER_RATE) }))
+      .filter((x) => x.diamonds > 0)
+      .sort((a, b) => b.diamonds - a.diamonds || (a.uid < b.uid ? -1 : 1));
+  }
+
+  /* ---------- excel export ---------- */
+  function buildPayoutSheet(rows, description) {
+    const data = [HEADERS];
+    rows.forEach((item) => {
+      const diamonds = Math.trunc(item.diamonds || 0);
+      if (diamonds <= 0) return;
+      data.push([String(item.uid || "").trim(), diamonds, description]);
+    });
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    const range = XLSX.utils.decode_range(ws["!ref"] || "A1");
+    for (let R = 1; R <= range.e.r; R++) {
+      const addr = XLSX.utils.encode_cell({ r: R, c: 0 });
+      if (ws[addr]) {
+        ws[addr].t = "s";
+        ws[addr].z = "@";
+        ws[addr].v = String(ws[addr].v);
+      }
+    }
+    ws["!cols"] = [{ wch: 18 }, { wch: 28 }, { wch: 36 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "发放详情");
+    return XLSX.write(wb, { bookType: "xlsx", type: "array" });
+  }
+
+  function downloadBlob(bytes, filename, mime) {
+    const blob = new Blob([bytes], { type: mime || "application/octet-stream" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+  }
+
+  function exportNames(label) {
+    return {
+      streamer: label + "独联体 主播薪资.xlsx",
+      leader: label + "独联体 公会长薪资.xlsx",
+      room: label + "独联体 房主bonus.xlsx",
+      zip: label + "独联体薪资.zip",
+    };
+  }
+
+  function downloadRoomTemplate() {
+    const ws = XLSX.utils.aoa_to_sheet([
+      ["room_info.owner_id", "房间内礼物红钻收入"],
+      ["111000123456", 10000],
+    ]);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "房间流水");
+    const out = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    downloadBlob(out, "room_bonus_template.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+  }
+
+  /* ---------- storage ---------- */
+  function loadHistory() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    } catch (_) {
+      return [];
+    }
+  }
+  function saveHistory(list) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(list.slice(0, 20)));
+    } catch (_) { /* ignore quota */ }
+  }
+  function persistBatch(batch) {
+    const list = loadHistory().filter((b) => b.id !== batch.id);
+    list.unshift({
+      id: batch.id,
+      week_label: batch.week_label,
+      record_count: batch.records.length,
+      calculated_at: batch.calculated_at,
+      records: batch.records,
+      rooms: batch.rooms,
+      streamer_payouts: batch.streamer_payouts,
+      leader_payouts: batch.leader_payouts,
+      room_payouts: batch.room_payouts,
+    });
+    saveHistory(list);
+    renderRecent();
+  }
+
+  /* ---------- UI ---------- */
+  function showError(el, msg) {
+    if (!msg) {
+      el.classList.add("hidden");
+      el.textContent = "";
+      return;
+    }
+    el.textContent = msg;
+    el.classList.remove("hidden");
+  }
+
+  function showHome() {
+    document.getElementById("view-home").classList.remove("hidden");
+    document.getElementById("view-result").classList.add("hidden");
+    window.scrollTo(0, 0);
+  }
+
+  function renderPreview(tbody, rows, desc, emptyText) {
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="3">' + emptyText + "</td></tr>";
+      return;
+    }
+    tbody.innerHTML = rows
+      .slice(0, PREVIEW_LIMIT)
+      .map(
+        (p) =>
+          "<tr><td>" +
+          escapeHtml(p.uid) +
+          "</td><td>" +
+          intcomma(p.diamonds) +
+          "</td><td>" +
+          escapeHtml(desc) +
+          "</td></tr>"
+      )
+      .join("");
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function showResult(batch) {
+    currentBatch = batch;
+    document.getElementById("view-home").classList.add("hidden");
+    document.getElementById("view-result").classList.remove("hidden");
+    document.getElementById("result-title").textContent = batch.week_label + " · 独联体日结";
+    showError(document.getElementById("result-error"), "");
+
+    const totals = {
+      streamer: batch.streamer_payouts.reduce((s, p) => s + p.diamonds, 0),
+      leader: batch.leader_payouts.reduce((s, p) => s + p.diamonds, 0),
+      room: batch.room_payouts.reduce((s, p) => s + p.diamonds, 0),
+      hosts: batch.streamer_payouts.length,
+      leaders: batch.leader_payouts.length,
+      rooms: batch.room_payouts.length,
+    };
+    document.getElementById("result-stats").innerHTML =
+      "<span>主播发放 <strong>" + totals.hosts + "</strong> 人 · " + intcomma(totals.streamer) + " 钻</span>" +
+      "<span>公会长发放 <strong>" + totals.leaders + "</strong> 人 · " + intcomma(totals.leader) + " 钻</span>" +
+      "<span>房主发放 <strong>" + totals.rooms + "</strong> 人 · " + intcomma(totals.room) + " 钻</span>";
+
+    document.getElementById("preview-streamer-title").textContent =
+      "主播下发预览（前 " + Math.min(PREVIEW_LIMIT, totals.hosts) + " / 共 " + totals.hosts + "）";
+    document.getElementById("preview-leader-title").textContent =
+      "公会长下发预览（前 " + Math.min(PREVIEW_LIMIT, totals.leaders) + " / 共 " + totals.leaders + "）";
+    document.getElementById("preview-room-title").textContent =
+      "房主 bonus 预览（前 " + Math.min(PREVIEW_LIMIT, totals.rooms) + " / 共 " + totals.rooms + "）";
+
+    renderPreview(document.getElementById("preview-streamer"), batch.streamer_payouts, DESC_STREAMER, "无人达标");
+    renderPreview(document.getElementById("preview-leader"), batch.leader_payouts, DESC_LEADER, "无公会长发放");
+    renderPreview(document.getElementById("preview-room"), batch.room_payouts, DESC_ROOM, "无房主 bonus");
+    window.scrollTo(0, 0);
+  }
+
+  function renderRecent() {
+    const body = document.getElementById("recent-body");
+    const list = loadHistory();
+    if (!list.length) {
+      body.innerHTML = '<tr><td colspan="4" style="color:var(--muted)">暂无记录（本机浏览器内保存）</td></tr>';
+      return;
+    }
+    body.innerHTML = list
+      .map(
+        (b) =>
+          "<tr><td>" +
+          escapeHtml(b.week_label) +
+          "</td><td>" +
+          (b.record_count || 0) +
+          "</td><td>" +
+          escapeHtml(b.calculated_at || "-") +
+          '</td><td><a href="#" data-open-id="' +
+          escapeHtml(b.id) +
+          '">下载表格</a></td></tr>'
+      )
+      .join("");
+  }
+
+  function nowStamp() {
+    const d = new Date();
+    const p = (n) => String(n).padStart(2, "0");
+    return (
+      d.getFullYear() +
+      "-" +
+      p(d.getMonth() + 1) +
+      "-" +
+      p(d.getDate()) +
+      " " +
+      p(d.getHours()) +
+      ":" +
+      p(d.getMinutes()) +
+      ":" +
+      p(d.getSeconds())
+    );
+  }
+  function todayYmd() {
+    const d = new Date();
+    const p = (n) => String(n).padStart(2, "0");
+    return "" + d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate());
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    const errEl = document.getElementById("home-error");
+    showError(errEl, "");
+    const btn = document.getElementById("btn-submit");
+    btn.disabled = true;
+    btn.textContent = "计算中…";
+
+    try {
+      const workInput = document.getElementById("file-work");
+      const roomInput = document.getElementById("file-room");
+      let workFile = workInput.files && workInput.files[0];
+      let roomFile = roomInput.files && roomInput.files[0];
+      if (!workFile || !roomFile) {
+        showError(errEl, "请同时上传主播工作数据与房间流水表");
+        return;
+      }
+
+      let workBytes = await workFile.arrayBuffer();
+      let roomBytes = await roomFile.arrayBuffer();
+      let workName = workFile.name || "";
+      let roomName = roomFile.name || "";
+
+      // 若第一个框误传了 CSV、第二个是 xlsx，自动对调（与后端一致）
+      if (looksLikeCsv(workName, workBytes) && !looksLikeCsv(roomName, roomBytes)) {
+        const tb = workBytes, tn = workName;
+        workBytes = roomBytes;
+        workName = roomName;
+        roomBytes = tb;
+        roomName = tn;
+      }
+
+      const workParsed = parseWorkFile(workBytes, workName);
+      if (!workParsed.rows.length) {
+        showError(errEl, workParsed.errors[0] || "未解析到主播工作数据");
+        return;
+      }
+      const roomParsed = parseRoomFile(roomBytes, roomName, ROOM_RATE);
+      if (!roomParsed.rows.length) {
+        showError(errEl, roomParsed.errors[0] || "未解析到房间流水");
+        return;
+      }
+
+      const label =
+        (document.getElementById("week-label").value || "").trim() ||
+        inferDayLabel(workParsed.rows) ||
+        todayYmd();
+
+      const records = calculateRecords(workParsed.rows);
+      const streamer_payouts = aggregateStreamerPayouts(records);
+      const leader_payouts = aggregateLeaderPayouts(records);
+      const room_payouts = roomParsed.rows
+        .filter((r) => (r.room_bonus || 0) > 0)
+        .map((r) => ({ uid: r.owner_uid, diamonds: r.room_bonus }));
+
+      const batch = {
+        id: "b_" + Date.now(),
+        week_label: label,
+        calculated_at: nowStamp(),
+        records,
+        rooms: roomParsed.rows,
+        streamer_payouts,
+        leader_payouts,
+        room_payouts,
+      };
+      persistBatch(batch);
+      showResult(batch);
+    } catch (err) {
+      showError(errEl, "计算失败：" + (err && err.message ? err.message : String(err)));
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "上传并计算";
+    }
+  }
+
+  async function handleExport(kind) {
+    if (!currentBatch) return;
+    const names = exportNames(currentBatch.week_label);
+    const mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+    if (kind === "streamer") {
+      downloadBlob(buildPayoutSheet(currentBatch.streamer_payouts, DESC_STREAMER), names.streamer, mime);
+      return;
+    }
+    if (kind === "leader") {
+      downloadBlob(buildPayoutSheet(currentBatch.leader_payouts, DESC_LEADER), names.leader, mime);
+      return;
+    }
+    if (kind === "room") {
+      if (!currentBatch.room_payouts.length) {
+        showError(document.getElementById("result-error"), "没有房主 bonus");
+        return;
+      }
+      downloadBlob(buildPayoutSheet(currentBatch.room_payouts, DESC_ROOM), names.room, mime);
+      return;
+    }
+    if (kind === "all") {
+      const zip = new JSZip();
+      zip.file(names.streamer, buildPayoutSheet(currentBatch.streamer_payouts, DESC_STREAMER));
+      zip.file(names.leader, buildPayoutSheet(currentBatch.leader_payouts, DESC_LEADER));
+      if (currentBatch.room_payouts.length) {
+        zip.file(names.room, buildPayoutSheet(currentBatch.room_payouts, DESC_ROOM));
+      }
+      const content = await zip.generateAsync({ type: "uint8array" });
+      downloadBlob(content, names.zip, "application/zip");
+    }
+  }
+
+  /* ---------- dropzone enhance (same as upload.js) ---------- */
+  function fileMatchesAccept(file, accept) {
+    if (!accept) return true;
+    const parts = accept.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
+    if (!parts.length) return true;
+    const name = file.name.toLowerCase();
+    const type = (file.type || "").toLowerCase();
+    return parts.some((part) => {
+      if (part.startsWith(".")) return name.endsWith(part);
+      if (part.endsWith("/*")) return type.startsWith(part.slice(0, -1));
+      return type === part;
+    });
+  }
+  function updateFileName(input, nameEl) {
+    if (input.files && input.files.length) {
+      nameEl.textContent =
+        input.files.length === 1
+          ? input.files[0].name
+          : Array.from(input.files).map((f) => f.name).join("、");
+      nameEl.classList.remove("is-error");
+    } else {
+      nameEl.textContent = "";
+    }
+  }
+  function enhanceFileInput(input) {
+    if (input.closest(".file-dropzone")) return;
+    const wrapper = document.createElement("div");
+    wrapper.className = "file-dropzone";
+    const inner = document.createElement("div");
+    inner.className = "file-dropzone-inner";
+    const hint = document.createElement("p");
+    hint.className = "file-dropzone-hint";
+    hint.textContent = "拖拽文件到此处，或点击选择";
+    const nameEl = document.createElement("p");
+    nameEl.className = "file-dropzone-name";
+    inner.appendChild(hint);
+    inner.appendChild(nameEl);
+    input.classList.add("file-dropzone-input");
+    input.parentNode.insertBefore(wrapper, input);
+    wrapper.appendChild(inner);
+    wrapper.appendChild(input);
+    wrapper.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      input.click();
+    });
+    input.addEventListener("change", () => updateFileName(input, nameEl));
+    wrapper.addEventListener("dragenter", (e) => { e.preventDefault(); wrapper.classList.add("is-dragover"); });
+    wrapper.addEventListener("dragover", (e) => { e.preventDefault(); wrapper.classList.add("is-dragover"); });
+    wrapper.addEventListener("dragleave", (e) => {
+      e.preventDefault();
+      if (!wrapper.contains(e.relatedTarget)) wrapper.classList.remove("is-dragover");
+    });
+    wrapper.addEventListener("drop", (e) => {
+      e.preventDefault();
+      wrapper.classList.remove("is-dragover");
+      const files = e.dataTransfer && e.dataTransfer.files;
+      if (!files || !files.length) return;
+      const accept = input.getAttribute("accept") || "";
+      const valid = Array.from(files).filter((f) => fileMatchesAccept(f, accept));
+      if (!valid.length) {
+        nameEl.textContent = "文件类型不符合要求";
+        nameEl.classList.add("is-error");
+        return;
+      }
+      const dt = new DataTransfer();
+      dt.items.add(valid[0]);
+      input.files = dt.files;
+      updateFileName(input, nameEl);
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+  }
+
+  function init() {
+    document.querySelectorAll('input[type="file"]').forEach(enhanceFileInput);
+    document.getElementById("calc-form").addEventListener("submit", handleSubmit);
+    document.getElementById("btn-room-template").addEventListener("click", downloadRoomTemplate);
+    document.getElementById("btn-back").addEventListener("click", (e) => {
+      e.preventDefault();
+      showHome();
+    });
+    document.getElementById("nav-home").addEventListener("click", (e) => {
+      e.preventDefault();
+      showHome();
+    });
+    document.querySelectorAll("[data-export]").forEach((btn) => {
+      btn.addEventListener("click", () => handleExport(btn.getAttribute("data-export")));
+    });
+    document.getElementById("recent-body").addEventListener("click", (e) => {
+      const a = e.target.closest("[data-open-id]");
+      if (!a) return;
+      e.preventDefault();
+      const id = a.getAttribute("data-open-id");
+      const batch = loadHistory().find((b) => b.id === id);
+      if (batch) showResult(batch);
+    });
+    renderRecent();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>
